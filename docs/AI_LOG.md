@@ -24,3 +24,27 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Archivos y commit: src/utils/validators.js — 78f7a4e
 - Verificación: Casos probados: nombre con números, cédula de 5 dígitos, persona de 17 años, placa "abc 123", XL con 4 pasajeros, correo sin dominio.
 - Aprendizaje: Uso de expresiones regulares y cómo calcular la edad comparando año, mes y día.
+
+### Entrada #3
+- Fecha: 2026-11-01
+- Integrante: Mateo Gonzalez
+- Herramienta: Claude
+- Objetivo: Crear componentes reutilizables para el formulario de registro
+- Prompt: Vamos con los componentes los quiero ahcer reutilizables porque asi nos enseño la docente y mas ordenado y menos lineas de codigo voy hacer el InputField el PrymaryButton y SelectField ya me diras que esta bien como debe de ir si hay un eror que tenga y me corriges voya pesnar hacer los componentes
+- Resumen de la respuesta: Creó InputField (label, campo y error debajo), SelectField (lista desplegable con Picker) y PrimaryButton (con estado deshabilitado y de carga).
+- Qué se usó / modificó / descartó: (escribe si cambiaste algo, por ejemplo colores o tamaños)
+- Archivos y commit: src/components/InputField.js, SelectField.js, PrimaryButton.js — 2d58bfe
+- Verificación: Prueba en App.js con campos vacíos, nombre con números y datos correctos.
+- Aprendizaje: Uso de errores sin usar alert se ve mas profesional que los errores salga en rojito debajo del input 
+
+### Entrada #4
+- Fecha: 2026-11-01
+- Integrante: Mateo Gonzalez
+- Herramienta: Claude
+- Objetivo: Crear los campos de fecha e imagen y el hook personalizado useImagePicker
+- Prompt: ahora hare lso componentes para la camara fecha que son datefield imagefiled, el hook useimagepicker para entar ala galeria del telefono, lo voy a ir creando uno por uno y te voy apasndo si tenig probkemas con algo con un eroror y tu e corriges
+- Resumen de la respuesta: Creó DateField (calendario con formato dd/mm/aaaa), el hook useImagePicker (permisos, cámara y galería) e ImageField (vista previa y botones de cámara y galería).
+- Qué se usó / modificó / descartó: (escribe si cambiaste algo)
+- Archivos y commit: src/components/DateField.js, src/components/ImageField.js, src/hooks/useImagePicker.js — (hash)
+- Verificación: Prueba en celular: fecha de menor de edad, foto desde cámara, foto desde galería y permiso negado.
+- Aprendizaje: el uso de los hooks personalizados bien, como el datefield para android e ios la forma del calnedario

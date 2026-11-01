@@ -1,48 +1,35 @@
 import { useState } from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
-import InputField from './src/components/InputField';
-import SelectField from './src/components/SelectField';
+import DateField from './src/components/DateField';
+import ImageField from './src/components/ImageField';
 import PrimaryButton from './src/components/PrimaryButton';
-import { GENDERS } from './src/constants/options';
-import { validateFullName, validatePhone, validateSelect } from './src/utils/validators';
+import { validateBirthDate, validatePhoto } from './src/utils/validators';
 
 export default function App() {
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [gender, setGender] = useState('');
+  const [birthDate, setBirthDate] = useState(null);
+  const [photo, setPhoto] = useState(null);
   const [errors, setErrors] = useState({});
 
   const handleTest = () => {
     setErrors({
-      fullName: validateFullName(fullName),
-      phone: validatePhone(phone),
-      gender: validateSelect(gender, 'un género'),
+      birthDate: validateBirthDate(birthDate),
+      photo: validatePhoto(photo),
     });
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <InputField
-        label="Nombre completo"
-        value={fullName}
-        onChangeText={setFullName}
-        error={errors.fullName}
-        maxLength={50}
+      <ImageField
+        label="Foto de perfil"
+        imageUri={photo}
+        onImageSelected={setPhoto}
+        error={errors.photo}
       />
-      <InputField
-        label="Celular"
-        value={phone}
-        onChangeText={setPhone}
-        error={errors.phone}
-        keyboardType="numeric"
-        maxLength={10}
-      />
-      <SelectField
-        label="Género"
-        selectedValue={gender}
-        onValueChange={setGender}
-        options={GENDERS}
-        error={errors.gender}
+      <DateField
+        label="Fecha de nacimiento"
+        value={birthDate}
+        onChange={setBirthDate}
+        error={errors.birthDate}
       />
       <PrimaryButton title="Probar validación" onPress={handleTest} />
     </ScrollView>
