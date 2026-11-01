@@ -45,6 +45,18 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Prompt: ahora hare lso componentes para la camara fecha que son datefield imagefiled, el hook useimagepicker para entar ala galeria del telefono, lo voy a ir creando uno por uno y te voy apasndo si tenig probkemas con algo con un eroror y tu e corriges
 - Resumen de la respuesta: Creó DateField (calendario con formato dd/mm/aaaa), el hook useImagePicker (permisos, cámara y galería) e ImageField (vista previa y botones de cámara y galería).
 - Qué se usó / modificó / descartó: (escribe si cambiaste algo)
-- Archivos y commit: src/components/DateField.js, src/components/ImageField.js, src/hooks/useImagePicker.js — (hash)
+- Archivos y commit: src/components/DateField.js, src/components/ImageField.js, src/hooks/useImagePicker.js — 64cbe1f
 - Verificación: Prueba en celular: fecha de menor de edad, foto desde cámara, foto desde galería y permiso negado.
 - Aprendizaje: el uso de los hooks personalizados bien, como el datefield para android e ios la forma del calnedario
+
+### Entrada #5
+- Fecha: 2026-11-01
+- Integrante: Mateo Mateo Gonzalez
+- Herramienta: Claude
+- Objetivo: Compartir los datos del registro entre pestañas y construir la Pestaña 1
+- Prompt: Aqui hare el screen personaldata con todos los campos tambien el useregister y el contextregister para que cada pestaña guardara sus datos con su propio useState para que cada vez que el conductor llene la pestaña 1, pasa a la 2 y luego vuelve a la 1. Como algunos datos se pierden al cambiar de pantalla, tendría que volver a escribirlos. para eso se crea el context para que todoq uede guardado ahi mismo
+- Resumen de la respuesta: Creó RegisterContext (datos de ambas pestañas, errores con useMemo, funciones con useCallback y campos "tocados"), el hook useRegister y la pantalla PersonalDataScreen.
+- Qué se usó / modificó / descartó: (escribe si cambiaste algo)
+- Archivos y commit: src/context/RegisterContext.js, src/hooks/useRegister.js, src/screens/PersonalDataScreen.js — (hash)
+- Verificación: Errores solo en campos tocados, todos los errores al tocar Siguiente, contraseñas distintas y formulario completo válido.
+- Aprendizaje: uso del context y use callback bien, la diferencia entre este con el usememo 

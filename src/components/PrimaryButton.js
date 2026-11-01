@@ -1,4 +1,3 @@
-// AI-assisted: see docs/AI_LOG.md #3
 import { Pressable, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { colors, spacing, radius } from '../theme/colors';
 

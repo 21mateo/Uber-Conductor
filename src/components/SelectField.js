@@ -16,7 +16,7 @@ export default function SelectField({
 
       <View style={[styles.pickerBox, error ? styles.pickerError : null]}>
         <Picker selectedValue={selectedValue} onValueChange={onValueChange}>
-          {/* Opción vacía para obligar al usuario a elegir */}
+
           <Picker.Item label={placeholder} value="" color={colors.textMuted} />
 
           {options.map((option) => (
