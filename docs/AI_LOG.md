@@ -57,6 +57,6 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Prompt: Aqui hare el screen personaldata con todos los campos tambien el useregister y el contextregister para que cada pestaña guardara sus datos con su propio useState para que cada vez que el conductor llene la pestaña 1, pasa a la 2 y luego vuelve a la 1. Como algunos datos se pierden al cambiar de pantalla, tendría que volver a escribirlos. para eso se crea el context para que todoq uede guardado ahi mismo
 - Resumen de la respuesta: Creó RegisterContext (datos de ambas pestañas, errores con useMemo, funciones con useCallback y campos "tocados"), el hook useRegister y la pantalla PersonalDataScreen.
 - Qué se usó / modificó / descartó: (escribe si cambiaste algo)
-- Archivos y commit: src/context/RegisterContext.js, src/hooks/useRegister.js, src/screens/PersonalDataScreen.js — (hash)
+- Archivos y commit: src/context/RegisterContext.js, src/hooks/useRegister.js, src/screens/PersonalDataScreen.js — 78d70cf
 - Verificación: Errores solo en campos tocados, todos los errores al tocar Siguiente, contraseñas distintas y formulario completo válido.
 - Aprendizaje: uso del context y use callback bien, la diferencia entre este con el usememo 

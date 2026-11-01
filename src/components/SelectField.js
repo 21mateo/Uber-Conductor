@@ -18,6 +18,7 @@ export default function SelectField({
         <Picker selectedValue={selectedValue} onValueChange={onValueChange}>
 
           <Picker.Item label={placeholder} value="" color={colors.textMuted} />
+          
 
           {options.map((option) => (
             <Picker.Item key={option.value} label={option.label} value={option.value} />

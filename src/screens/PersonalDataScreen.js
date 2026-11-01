@@ -18,7 +18,6 @@ export default function PersonalDataScreen({ navigation }) {
   } = useRegister();
 
   const handleNext = () => {
-    // Muestra los errores de todos los campos que falten
     showAllPersonalErrors();
     if (isPersonalValid) {
       navigation.navigate('Vehicle');
@@ -31,7 +30,6 @@ export default function PersonalDataScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>Datos personales</Text>
         <Text style={styles.subtitle}>Paso 1 de 3</Text>
 
         <ImageField
@@ -130,9 +128,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
   },
-  title: {
-    ...typography.title,
-  },
+
   subtitle: {
     color: colors.textMuted,
     marginBottom: spacing.xl,
