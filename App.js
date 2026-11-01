@@ -1,35 +1,54 @@
 import { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from './src/config/firebaseConfig';
+import { ScrollView, StyleSheet } from 'react-native';
+import InputField from './src/components/InputField';
+import SelectField from './src/components/SelectField';
+import PrimaryButton from './src/components/PrimaryButton';
+import { GENDERS } from './src/constants/options';
+import { validateFullName, validatePhone, validateSelect } from './src/utils/validators';
 
 export default function App() {
-  const [message, setMessage] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
+  const [errors, setErrors] = useState({});
 
-  const testConnection = async () => {
-    try {
-      await addDoc(collection(db, 'test'), {
-        ok: true,
-        createdAt: serverTimestamp(),
-      });
-      setMessage('Conectado a Firestore ✅');
-    } catch (error) {
-      setMessage('Error: ' + error.message);
-    }
+  const handleTest = () => {
+    setErrors({
+      fullName: validateFullName(fullName),
+      phone: validatePhone(phone),
+      gender: validateSelect(gender, 'un género'),
+    });
   };
 
   return (
-    <View style={styles.container}>
-      <Pressable style={styles.button} onPress={testConnection}>
-        <Text style={styles.buttonText}>Probar conexión</Text>
-      </Pressable>
-      <Text>{message}</Text>
-    </View>
+    <ScrollView contentContainerStyle={styles.container}>
+      <InputField
+        label="Nombre completo"
+        value={fullName}
+        onChangeText={setFullName}
+        error={errors.fullName}
+        maxLength={50}
+      />
+      <InputField
+        label="Celular"
+        value={phone}
+        onChangeText={setPhone}
+        error={errors.phone}
+        keyboardType="numeric"
+        maxLength={10}
+      />
+      <SelectField
+        label="Género"
+        selectedValue={gender}
+        onValueChange={setGender}
+        options={GENDERS}
+        error={errors.gender}
+      />
+      <PrimaryButton title="Probar validación" onPress={handleTest} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 12 },
-  button: { backgroundColor: '#111827', padding: 14, borderRadius: 10 },
-  buttonText: { color: '#fff', fontWeight: 'bold' },
+  container: { padding: 20, paddingTop: 60 },
 });
