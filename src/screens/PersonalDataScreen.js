@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { useRef } from 'react';
+import { Text, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import useRegister from '../hooks/useRegister';
 import InputField from '../components/InputField';
 import SelectField from '../components/SelectField';
@@ -6,7 +7,7 @@ import DateField from '../components/DateField';
 import ImageField from '../components/ImageField';
 import PrimaryButton from '../components/PrimaryButton';
 import { GENDERS } from '../constants/options';
-import { colors, spacing, typography } from '../theme/colors';
+import { colors, spacing } from '../theme/colors';
 
 export default function PersonalDataScreen({ navigation }) {
   const {
@@ -17,10 +18,14 @@ export default function PersonalDataScreen({ navigation }) {
     showAllPersonalErrors,
   } = useRegister();
 
+  const scrollRef = useRef(null);
+
   const handleNext = () => {
     showAllPersonalErrors();
     if (isPersonalValid) {
       navigation.navigate('Vehicle');
+    } else {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
     }
   };
 
@@ -29,7 +34,11 @@ export default function PersonalDataScreen({ navigation }) {
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.subtitle}>Paso 1 de 3</Text>
 
         <ImageField
@@ -128,7 +137,6 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     paddingBottom: spacing.xxl,
   },
-
   subtitle: {
     color: colors.textMuted,
     marginBottom: spacing.xl,

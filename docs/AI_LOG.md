@@ -60,3 +60,15 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Archivos y commit: src/context/RegisterContext.js, src/hooks/useRegister.js, src/screens/PersonalDataScreen.js — 78d70cf
 - Verificación: Errores solo en campos tocados, todos los errores al tocar Siguiente, contraseñas distintas y formulario completo válido.
 - Aprendizaje: uso del context y use callback bien, la diferencia entre este con el usememo 
+
+### Entrada #7
+- Fecha: 2026-11-01
+- Integrante: Mateo Gonzalez
+- Herramienta: Claude
+- Objetivo: Guardar el registro del conductor en Firebase con imágenes en Cloudinary y manejo de errores
+- Prompt: No me quiere guardar las imagenes en claudinary, emepece a crear el imageservice driverservice
+- Resumen de la respuesta: Creó imageService (subida a Cloudinary con FormData), authService, driverService (registro en 4 pasos con rollback si falla) y firebaseErrors (traducción de errores). Conectó el botón Enviar registro con estado de carga y mensaje de error.
+- Qué se usó / modificó / descartó: (escribe si cambiaste algo)
+- Archivos y commit: src/config/cloudinaryConfig.js, src/services/imageService.js, authService.js, driverService.js, src/utils/firebaseErrors.js, src/screens/VehicleScreen.js — (hash)
+- Verificación: Registro correcto verificado en Auth, Firestore y Cloudinary. Errores probados: correo repetido, documento repetido, placa repetida, sin internet. Se verificó que el rollback borra el usuario.
+- Aprendizaje: uso del rollback se entnedio emjor para que se sirve y porque se usa url para las foto en vez de bsa64

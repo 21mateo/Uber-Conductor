@@ -15,10 +15,12 @@ export default function SelectField({
       <Text style={styles.label}>{label}</Text>
 
       <View style={[styles.pickerBox, error ? styles.pickerError : null]}>
-        <Picker selectedValue={selectedValue} onValueChange={onValueChange}>
-
+        <Picker
+          selectedValue={selectedValue}
+          onValueChange={onValueChange}
+          itemStyle={styles.pickerItem}
+        >
           <Picker.Item label={placeholder} value="" color={colors.textMuted} />
-          
 
           {options.map((option) => (
             <Picker.Item key={option.value} label={option.label} value={option.value} />
@@ -45,6 +47,10 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.sm,
     overflow: 'hidden',
+  },
+  pickerItem: {
+    fontSize: 16,
+    height: 120, 
   },
   pickerError: {
     borderColor: colors.danger,

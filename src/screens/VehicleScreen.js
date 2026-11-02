@@ -1,14 +1,27 @@
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform, Pressable, Alert, StyleSheet } from 'react-native';
+import { useRef, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  Alert,
+  StyleSheet,
+} from 'react-native';
 import useRegister from '../hooks/useRegister';
 import InputField from '../components/InputField';
 import SelectField from '../components/SelectField';
 import ImageField from '../components/ImageField';
 import PrimaryButton from '../components/PrimaryButton';
 import { CATEGORIES, VEHICLE_COLORS } from '../constants/options';
+import { registerDriver } from '../services/driverService';
+import { getErrorMessage } from '../utils/firebaseErrors';
 import { colors, spacing } from '../theme/colors';
 
 export default function VehicleScreen({ navigation }) {
   const {
+    personalData,
     vehicleData,
     updateVehicle,
     vehicleErrors,
@@ -20,16 +33,34 @@ export default function VehicleScreen({ navigation }) {
 
   const canSubmit = isPersonalValid && isVehicleValid;
 
+  const scrollRef = useRef(null);
+
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
   const handleShowPending = () => {
     showAllPersonalErrors();
     showAllVehicleErrors();
+
     if (!isPersonalValid) {
       navigation.navigate('Personal');
+    } else {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
     }
   };
 
-  const handleSubmit = () => {
-    Alert.alert('Formulario completo', 'En el siguiente paso lo guardamos en Firebase.');
+  const handleSubmit = async () => {
+    setSubmitError('');
+    setLoading(true);
+    try {
+      await registerDriver(personalData, vehicleData);
+      Alert.alert('Registro enviado', 'Tu cuenta quedó pendiente de aprobación.');
+    } catch (error) {
+      console.log('Error en el registro:', error);
+      setSubmitError(getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,7 +68,11 @@ export default function VehicleScreen({ navigation }) {
       style={styles.screen}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <Text style={styles.subtitle}>Paso 2 de 3</Text>
 
         <SelectField
@@ -113,7 +148,14 @@ export default function VehicleScreen({ navigation }) {
           aspect={[4, 3]}
         />
 
-        <PrimaryButton title="Enviar registro" onPress={handleSubmit} disabled={!canSubmit} />
+        {submitError ? <Text style={styles.submitError}>{submitError}</Text> : null}
+
+        <PrimaryButton
+          title="Enviar registro"
+          onPress={handleSubmit}
+          disabled={!canSubmit}
+          loading={loading}
+        />
 
         {!canSubmit && (
           <View style={styles.pendingBox}>
@@ -144,6 +186,12 @@ const styles = StyleSheet.create({
   subtitle: {
     color: colors.textMuted,
     marginBottom: spacing.xl,
+  },
+  submitError: {
+    color: colors.danger,
+    textAlign: 'center',
+    marginBottom: spacing.sm,
+    fontWeight: '600',
   },
   pendingBox: {
     alignItems: 'center',
