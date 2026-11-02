@@ -81,6 +81,6 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Prompt: voy hacer el loginscreen donde se permita loguear el usurio bien que salga mas abajo la del registro si no hay cuenta y que lo lleve la las 2 pestañas de registro tambien este context AuthContext
 - Resumen de la respuesta: analizo AuthContext (onAuthStateChanged + onSnapshot con funciones de limpieza en useEffect), el hook useAuth, LoginScreen, PendingScreen y navegación condicional en AppNavigator. Agregó flecha para volver del registro al login.
 - Qué se usó / modificó / descartó: (escribe si cambiaste algo)
-- Archivos y commit: src/context/AuthContext.js, src/hooks/useAuth.js, src/screens/LoginScreen.js, src/screens/PendingScreen.js, src/navigation/AppNavigator.js, src/navigation/RegisterTabs.js, src/screens/VehicleScreen.js, App.js — (hash)
+- Archivos y commit: src/context/AuthContext.js, src/hooks/useAuth.js, src/screens/LoginScreen.js, src/screens/PendingScreen.js, src/navigation/AppNavigator.js, src/navigation/RegisterTabs.js, src/screens/VehicleScreen.js, App.js — 8c93e3d
 - Verificación: Login con errores, sesión persistente al cerrar la app, cambio de status en Firestore reflejado en tiempo real, cerrar sesión y registro nuevo que entra automáticamente.
 - Aprendizaje: aqui aprende a usar una navegacion en donde el usuario ya una vez inicie sesion no se pueda devolver atras sin cerrar sesion 
