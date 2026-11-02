@@ -1,3 +1,4 @@
+import { Pressable } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { RegisterProvider } from '../context/RegisterContext';
@@ -5,7 +6,7 @@ import useRegister from '../hooks/useRegister';
 import PersonalDataScreen from '../screens/PersonalDataScreen';
 import VehicleScreen from '../screens/VehicleScreen';
 import DocumentsScreen from '../screens/DocumentsScreen';
-import { colors } from '../theme/colors';
+import { colors, spacing } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,10 +22,18 @@ function RegisterTabsContent() {
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({ navigation }) => ({
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textMuted,
-      }}
+        headerLeft: () => (
+          <Pressable
+            onPress={() => navigation.getParent()?.goBack()}
+            style={{ paddingHorizontal: spacing.lg }}
+          >
+            <Ionicons name="arrow-back" size={24} color={colors.text} />
+          </Pressable>
+        ),
+      })}
     >
       <Tab.Screen
         name="Personal"

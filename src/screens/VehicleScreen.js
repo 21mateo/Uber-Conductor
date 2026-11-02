@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Alert,
   StyleSheet,
 } from 'react-native';
 import useRegister from '../hooks/useRegister';
@@ -54,11 +53,9 @@ export default function VehicleScreen({ navigation }) {
     setLoading(true);
     try {
       await registerDriver(personalData, vehicleData);
-      Alert.alert('Registro enviado', 'Tu cuenta quedó pendiente de aprobación.');
     } catch (error) {
       console.log('Error en el registro:', error);
       setSubmitError(getErrorMessage(error));
-    } finally {
       setLoading(false);
     }
   };

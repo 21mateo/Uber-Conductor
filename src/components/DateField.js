@@ -14,12 +14,13 @@ const formatDate = (date) => {
 export default function DateField({ label, value, onChange, error, placeholder = 'Selecciona una fecha' }) {
   const [showPicker, setShowPicker] = useState(false);
 
-  const handleChange = (event, selectedDate) => {
+  const handleValueChange = (event, selectedDate) => {
     if (Platform.OS === 'android') setShowPicker(false);
+    if (selectedDate) onChange(selectedDate);
+  };
 
-    if (event.type === 'set' && selectedDate) {
-      onChange(selectedDate);
-    }
+  const handleDismiss = () => {
+    setShowPicker(false);
   };
 
   return (
@@ -43,7 +44,8 @@ export default function DateField({ label, value, onChange, error, placeholder =
             mode="date"
             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
             maximumDate={new Date()}
-            onChange={handleChange}
+            onValueChange={handleValueChange}
+            onDismiss={handleDismiss}
           />
           {Platform.OS === 'ios' && (
             <Pressable style={styles.doneButton} onPress={() => setShowPicker(false)}>
