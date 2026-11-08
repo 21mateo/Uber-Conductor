@@ -10,11 +10,12 @@ const messages = {
   'auth/wrong-password': 'Correo o contraseña incorrectos.',
   'auth/user-disabled': 'Esta cuenta fue deshabilitada.',
   'permission-denied': 'No tienes permiso para realizar esta acción.',
-  unavailable: 'El servidor no está disponible. Intenta más tarde.',
+  unavailable: 'El servidor no está disponible. Revisa tu conexión.',
   'driver/document-taken': 'Ya existe un conductor registrado con este documento de identidad.',
   'driver/plate-taken': 'Ya existe un vehículo registrado con esta placa.',
   'upload/network': 'No se pudieron subir las fotos. Revisa tu conexión a internet.',
   'upload/failed': 'No se pudo subir una de las fotos. Intenta de nuevo.',
+  'trip/not-available': 'Esta solicitud ya no está disponible.',
 };
 
 export const getErrorMessage = (error) => {

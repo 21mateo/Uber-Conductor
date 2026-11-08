@@ -6,6 +6,8 @@ import {
   Pressable,
   ActivityIndicator,
   Linking,
+  Vibration,
+  Alert,
   StyleSheet,
 } from 'react-native';
 import MapView from 'react-native-maps';
@@ -14,12 +16,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import useAuth from '../hooks/useAuth';
 import useDriverLocation from '../hooks/useDriverLocation';
+import useTripRequests from '../hooks/useTripRequests';
+import TripRequestCard from '../components/TripRequestCard';
 import { updateDriverAvailability } from '../services/driverService';
+import { acceptTrip, rejectTrip } from '../services/tripService';
+import { getErrorMessage } from '../utils/firebaseErrors';
 import { colors, spacing, radius } from '../theme/colors';
 
 const MAP_DELTA = { latitudeDelta: 0.01, longitudeDelta: 0.01 };
 
-// Llave de AsyncStorage para recordar la última disponibilidad de cada conductor
 const availabilityKey = (uid) => `lastAvailability_${uid}`;
 
 export default function HomeScreen() {
@@ -28,12 +33,15 @@ export default function HomeScreen() {
   const mapRef = useRef(null);
 
   const [saving, setSaving] = useState(false);
+  const [responding, setResponding] = useState(false);
   const [error, setError] = useState('');
 
   const isApproved = driver?.status === 'approved';
   const isAvailable = isApproved && driver?.isAvailable === true;
 
   const { location, permissionDenied } = useDriverLocation(user?.uid, isAvailable && isFocused);
+
+  const { request } = useTripRequests(user?.uid, isAvailable);
 
   const changeAvailability = useCallback(
     async (value) => {
@@ -52,6 +60,42 @@ export default function HomeScreen() {
     [user]
   );
 
+  const handleAccept = useCallback(async () => {
+    if (!request) return;
+    setError('');
+    setResponding(true);
+    try {
+      await acceptTrip(request.id);
+      Alert.alert('Viaje aceptado', 'En el siguiente paso aquí se abre la navegación.');
+    } catch (err) {
+      console.log('Error aceptando viaje:', err);
+      setError(getErrorMessage(err));
+    } finally {
+      setResponding(false);
+    }
+  }, [request]);
+
+  // Rechazar la solicitud: por el conductor o porque se acabó el tiempo
+  const handleReject = useCallback(
+    async (reason) => {
+      if (!request) return;
+      setError('');
+      setResponding(true);
+      try {
+        await rejectTrip(request.id, reason);
+      } catch (err) {
+        console.log('Error rechazando viaje:', err);
+        setError(getErrorMessage(err));
+      } finally {
+        setResponding(false);
+      }
+    },
+    [request]
+  );
+
+  const handleRejectByDriver = useCallback(() => handleReject('driver'), [handleReject]);
+  const handleTimeout = useCallback(() => handleReject('timeout'), [handleReject]);
+
   useEffect(() => {
     if (!user || !driver) return;
 
@@ -68,6 +112,10 @@ export default function HomeScreen() {
       });
     }
   }, [user, isApproved]);
+
+  useEffect(() => {
+    if (request) Vibration.vibrate();
+  }, [request?.id]);
 
   useEffect(() => {
     if (location && mapRef.current) {
@@ -90,7 +138,6 @@ export default function HomeScreen() {
     );
   }
 
-  // Mientras se obtiene la primera ubicación
   if (!location) {
     return (
       <View style={styles.center}>
@@ -109,42 +156,58 @@ export default function HomeScreen() {
         showsUserLocation
       />
 
-      <View style={styles.panel}>
-        {!isApproved && (
-          <View style={styles.warning}>
-            <Ionicons name="time-outline" size={20} color={colors.warning} />
-            <Text style={styles.warningText}>
-              {driver?.status === 'rejected'
-                ? 'Tu registro fue rechazado. Comunícate con soporte.'
-                : 'Tu cuenta está pendiente de aprobación. Podrás ponerte disponible cuando sea aprobada.'}
-            </Text>
+      <View style={styles.bottom}>
+        {error ? <Text style={styles.floatingError}>{error}</Text> : null}
+
+        {request ? (
+          // key: cada solicitud nueva crea una tarjeta nueva (y el temporizador empieza en 15)
+          <TripRequestCard
+            key={request.id}
+            request={request}
+            onAccept={handleAccept}
+            onReject={handleRejectByDriver}
+            onTimeout={handleTimeout}
+            loading={responding}
+          />
+        ) : (
+          <View style={styles.panel}>
+            {!isApproved && (
+              <View style={styles.warning}>
+                <Ionicons name="time-outline" size={20} color={colors.warning} />
+                <Text style={styles.warningText}>
+                  {driver?.status === 'rejected'
+                    ? 'Tu registro fue rechazado. Comunícate con soporte.'
+                    : 'Tu cuenta está pendiente de aprobación. Podrás ponerte disponible cuando sea aprobada.'}
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.row}>
+              <View style={[styles.dot, isAvailable ? styles.dotOn : styles.dotOff]} />
+              <View style={styles.statusInfo}>
+                <Text style={styles.statusTitle}>
+                  {isAvailable ? 'Disponible' : 'No disponible'}
+                </Text>
+                <Text style={styles.statusText}>
+                  {isAvailable
+                    ? 'Esperando solicitudes de viaje...'
+                    : 'Activa el interruptor para recibir viajes'}
+                </Text>
+              </View>
+
+              {saving ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <Switch
+                  value={isAvailable}
+                  onValueChange={changeAvailability}
+                  disabled={!isApproved}
+                  trackColor={{ true: colors.success }}
+                />
+              )}
+            </View>
           </View>
         )}
-
-        <View style={styles.row}>
-          <View style={[styles.dot, isAvailable ? styles.dotOn : styles.dotOff]} />
-          <View style={styles.statusInfo}>
-            <Text style={styles.statusTitle}>{isAvailable ? 'Disponible' : 'No disponible'}</Text>
-            <Text style={styles.statusText}>
-              {isAvailable
-                ? 'Estás recibiendo solicitudes de viaje'
-                : 'Activa el interruptor para recibir viajes'}
-            </Text>
-          </View>
-
-          {saving ? (
-            <ActivityIndicator color={colors.primary} />
-          ) : (
-            <Switch
-              value={isAvailable}
-              onValueChange={changeAvailability}
-              disabled={!isApproved}
-              trackColor={{ true: colors.success }}
-            />
-          )}
-        </View>
-
-        {error ? <Text style={styles.error}>{error}</Text> : null}
       </View>
     </View>
   );
@@ -157,11 +220,14 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-  panel: {
+  bottom: {
     position: 'absolute',
     left: spacing.lg,
     right: spacing.lg,
     bottom: spacing.xl,
+    gap: spacing.sm,
+  },
+  panel: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,
     padding: spacing.lg,
@@ -171,6 +237,15 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
+  },
+  floatingError: {
+    backgroundColor: colors.danger,
+    color: colors.white,
+    fontWeight: '600',
+    textAlign: 'center',
+    padding: spacing.sm,
+    borderRadius: radius.sm,
+    overflow: 'hidden',
   },
   warning: {
     flexDirection: 'row',
@@ -211,11 +286,6 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 13,
     color: colors.textMuted,
-  },
-  error: {
-    color: colors.danger,
-    fontSize: 13,
-    fontWeight: '600',
   },
   center: {
     flex: 1,

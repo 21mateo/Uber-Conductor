@@ -1,4 +1,6 @@
-// Opciones para las listas desplegables del registro.
+// Opciones para las listas desplegables y textos de la app.
+// label = lo que ve el usuario, value = lo que se guarda en la base de datos
+
 export const GENDERS = [
   { label: 'Masculino', value: 'male' },
   { label: 'Femenino', value: 'female' },
@@ -22,3 +24,14 @@ export const VEHICLE_COLORS = [
   { label: 'Verde', value: 'green' },
   { label: 'Otro', value: 'other' },
 ];
+
+export const PAYMENT_METHODS = [
+  { label: 'Mercado Pago', value: 'mercadopago' },
+  { label: 'Stripe', value: 'stripe' },
+  { label: 'Efectivo', value: 'cash' },
+];
+
+export const getOptionLabel = (options, value) => {
+  const option = options.find((item) => item.value === value);
+  return option ? option.label : value;
+};

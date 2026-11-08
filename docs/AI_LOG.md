@@ -99,6 +99,6 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Prompt: Creare ya el inicio con el mapa un menu desplegable que va hacer el home donde este por el momento mi cuenta la foto el inicio con el mapa y la opcion de cerrar sesion
 - Resumen de la respuesta: Analizo el hook useDriverLocation (watchPositionAsync con función de limpieza, guarda la ubicación cada 5 s), HomeScreen (mapa, interruptor solo para cuentas aprobadas, AsyncStorage para la última disponibilidad), MainDrawer (menú con perfil y cerrar sesión) y conectó el Drawer dentro del Stack.
 - Qué se usó / modificó / descartó: Se eligió OSRM en vez de Google Directions para las rutas (gratis, sin tarjeta). (escribe si cambiaste algo más)
-- Archivos y commit: src/hooks/useDriverLocation.js, src/services/driverService.js, src/screens/HomeScreen.js, src/navigation/MainDrawer.js, src/navigation/AppNavigator.js, App.js — (hash)
+- Archivos y commit: src/hooks/useDriverLocation.js, src/services/driverService.js, src/screens/HomeScreen.js, src/navigation/MainDrawer.js, src/navigation/AppNavigator.js, App.js — 8e7e88a
 - Verificación: Interruptor bloqueado con cuenta pendiente, ubicación guardada en Firestore mientras está disponible, seguimiento detenido al salir de la pantalla o pasar a No disponible, estado recuperado al reabrir la app.
 - Aprendizaje: Utilizar librerias para ubicacion en tiempo real, y que sirva y no se desactive si se sale de la aplicacion o se cierra sin cerrar sesion y se cierra sesion se desactiva automaticamente
