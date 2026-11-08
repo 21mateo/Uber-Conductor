@@ -2,6 +2,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  updateDoc,
   collection,
   query,
   where,
@@ -35,12 +36,14 @@ export const registerDriver = async (personalData, vehicleData, documentsData) =
   const plate = normalizePlate(vehicleData.plate);
   const needsTechReview = requiresTechReview(vehicleData.year);
 
+  // 1. Subir todas las fotos a Cloudinary al mismo tiempo
   const [profilePhotoUrl, vehiclePhotoUrl, licensePhotoUrl, soatPhotoUrl, techReviewPhotoUrl] =
     await Promise.all([
       uploadImage(personalData.photo, 'uber-conductor/perfiles'),
       uploadImage(vehicleData.photo, 'uber-conductor/vehiculos'),
       uploadImage(documentsData.licensePhoto, 'uber-conductor/documentos'),
       uploadImage(documentsData.soatPhoto, 'uber-conductor/documentos'),
+      // La revisión técnico-mecánica solo se sube si aplica
       needsTechReview
         ? uploadImage(documentsData.techReviewPhoto, 'uber-conductor/documentos')
         : Promise.resolve(null),
@@ -99,9 +102,9 @@ export const registerDriver = async (personalData, vehicleData, documentsData) =
       payment: {
         mercadoPagoEmail: documentsData.mercadoPagoEmail.trim().toLowerCase(),
       },
-      commissionRate: PRICING.commissionRate, 
+      commissionRate: PRICING.commissionRate, // comisión que aceptó el conductor
       termsAcceptedAt: serverTimestamp(),
-      status: 'pending', 
+      status: 'pending',
       isAvailable: false,
       balance: 0,
       createdAt: serverTimestamp(),
@@ -117,4 +120,18 @@ export const registerDriver = async (personalData, vehicleData, documentsData) =
 export const getDriver = async (uid) => {
   const snapshot = await getDoc(doc(db, DRIVERS, uid));
   return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
+};
+
+export const updateDriverAvailability = async (uid, isAvailable) => {
+  await updateDoc(doc(db, DRIVERS, uid), {
+    isAvailable,
+    availabilityUpdatedAt: serverTimestamp(),
+  });
+};
+
+export const updateDriverLocation = async (uid, coords) => {
+  await updateDoc(doc(db, DRIVERS, uid), {
+    location: { lat: coords.latitude, lng: coords.longitude },
+    locationUpdatedAt: serverTimestamp(),
+  });
 };

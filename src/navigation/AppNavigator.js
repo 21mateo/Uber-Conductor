@@ -3,8 +3,8 @@ import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import useAuth from '../hooks/useAuth';
 import LoginScreen from '../screens/LoginScreen';
-import PendingScreen from '../screens/PendingScreen';
 import RegisterTabs from './RegisterTabs';
+import MainDrawer from './MainDrawer';
 import { colors } from '../theme/colors';
 
 const Stack = createNativeStackNavigator();
@@ -38,7 +38,7 @@ export default function AppNavigator() {
     <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator>
         {isLoggedIn ? (
-          <Stack.Screen name="Pending" component={PendingScreen} options={{ title: 'Mi cuenta' }} />
+          <Stack.Screen name="Main" component={MainDrawer} options={{ headerShown: false }} />
         ) : (
           <>
             <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />

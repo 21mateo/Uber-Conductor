@@ -32,7 +32,6 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Objetivo: Crear componentes reutilizables para el formulario de registro
 - Prompt: Vamos con los componentes los quiero ahcer reutilizables porque asi nos enseño la docente y mas ordenado y menos lineas de codigo voy hacer el InputField el PrymaryButton y SelectField ya me diras que esta bien como debe de ir si hay un eror que tenga y me corriges voya pesnar hacer los componentes
 - Resumen de la respuesta: analizo InputField (label, campo y error debajo), SelectField (lista desplegable con Picker) y PrimaryButton (con estado deshabilitado y de carga).
-- Qué se usó / modificó / descartó: (escribe si cambiaste algo, por ejemplo colores o tamaños)
 - Archivos y commit: src/components/InputField.js, SelectField.js, PrimaryButton.js — 2d58bfe
 - Verificación: Prueba en App.js con campos vacíos, nombre con números y datos correctos.
 - Aprendizaje: Uso de errores sin usar alert se ve mas profesional que los errores salga en rojito debajo del input 
@@ -44,7 +43,6 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Objetivo: Crear los campos de fecha e imagen y el hook personalizado useImagePicker
 - Prompt: ahora hare lso componentes para la camara fecha que son datefield imagefiled, el hook useimagepicker para entar ala galeria del telefono, lo voy a ir creando uno por uno y te voy apasndo si tenig probkemas con algo con un eroror y tu e corriges
 - Resumen de la respuesta: analizo DateField (calendario con formato dd/mm/aaaa), el hook useImagePicker (permisos, cámara y galería) e ImageField (vista previa y botones de cámara y galería).
-- Qué se usó / modificó / descartó: (escribe si cambiaste algo)
 - Archivos y commit: src/components/DateField.js, src/components/ImageField.js, src/hooks/useImagePicker.js — 64cbe1f
 - Verificación: Prueba en celular: fecha de menor de edad, foto desde cámara, foto desde galería y permiso negado.
 - Aprendizaje: el uso de los hooks personalizados bien, como el datefield para android e ios la forma del calnedario
@@ -56,7 +54,6 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Objetivo: Compartir los datos del registro entre pestañas y construir la Pestaña 1
 - Prompt: Aqui hare el screen personaldata con todos los campos tambien el useregister y el contextregister para que cada pestaña guardara sus datos con su propio useState para que cada vez que el conductor llene la pestaña 1, pasa a la 2 y luego vuelve a la 1. Como algunos datos se pierden al cambiar de pantalla, tendría que volver a escribirlos. para eso se crea el context para que todoq uede guardado ahi mismo
 - Resumen de la respuesta: analizo RegisterContext (datos de ambas pestañas, errores con useMemo, funciones con useCallback y campos "tocados"), el hook useRegister y la pantalla PersonalDataScreen.
-- Qué se usó / modificó / descartó: (escribe si cambiaste algo)
 - Archivos y commit: src/context/RegisterContext.js, src/hooks/useRegister.js, src/screens/PersonalDataScreen.js — 78d70cf
 - Verificación: Errores solo en campos tocados, todos los errores al tocar Siguiente, contraseñas distintas y formulario completo válido.
 - Aprendizaje: uso del context y use callback bien, la diferencia entre este con el usememo 
@@ -68,7 +65,6 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Objetivo: Guardar el registro del conductor en Firebase con imágenes en Cloudinary y manejo de errores
 - Prompt: No me quiere guardar las imagenes en claudinary, emepece a crear el imageservice driverservice
 - Resumen de la respuesta: miro imageService (subida a Cloudinary con FormData), authService, driverService (registro en 4 pasos con rollback si falla) y firebaseErrors (traducción de errores). Conectó el botón Enviar registro con estado de carga y mensaje de error.
-- Qué se usó / modificó / descartó: (escribe si cambiaste algo)
 - Archivos y commit: src/config/cloudinaryConfig.js, src/services/imageService.js, authService.js, driverService.js, src/utils/firebaseErrors.js, src/screens/VehicleScreen.js — 6d6b6c9
 - Verificación: Registro correcto verificado en Auth, Firestore y Cloudinary. Errores probados: correo repetido, documento repetido, placa repetida, sin internet. Se verificó que el rollback borra el usuario.
 - Aprendizaje: uso del rollback se entnedio emjor para que se sirve y porque se usa url para las foto en vez de bsa64
@@ -80,7 +76,29 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Objetivo: Implementar login, sesión persistente, pantalla de pendiente de aprobación y cerrar sesión
 - Prompt: voy hacer el loginscreen donde se permita loguear el usurio bien que salga mas abajo la del registro si no hay cuenta y que lo lleve la las 2 pestañas de registro tambien este context AuthContext
 - Resumen de la respuesta: analizo AuthContext (onAuthStateChanged + onSnapshot con funciones de limpieza en useEffect), el hook useAuth, LoginScreen, PendingScreen y navegación condicional en AppNavigator. Agregó flecha para volver del registro al login.
-- Qué se usó / modificó / descartó: (escribe si cambiaste algo)
 - Archivos y commit: src/context/AuthContext.js, src/hooks/useAuth.js, src/screens/LoginScreen.js, src/screens/PendingScreen.js, src/navigation/AppNavigator.js, src/navigation/RegisterTabs.js, src/screens/VehicleScreen.js, App.js — 8c93e3d
 - Verificación: Login con errores, sesión persistente al cerrar la app, cambio de status en Firestore reflejado en tiempo real, cerrar sesión y registro nuevo que entra automáticamente.
-- Aprendizaje: aqui aprende a usar una navegacion en donde el usuario ya una vez inicie sesion no se pueda devolver atras sin cerrar sesion 
+- Aprendizaje: aqui aprendi a usar una navegacion en donde el usuario ya una vez inicie sesion no se pueda devolver atras sin cerrar sesion 
+
+### Entrada #8
+- Fecha: 2026-11-06
+- Integrante: Mateo Gonzalez
+- Herramienta: Claude
+- Objetivo: ayudar a implementar la pestaña 3 de Documentos
+- Prompt: voy a corregir el año del carro que debe ser 2026 + 1 y tanmbien a implementar la pestaña 3 que son los documentos que lleva la licencia el soat y tecno-mecanica si lo necesita el carro y lo demas
+- Resumen de la respuesta:  el año máximo a año actual + 1. analizo la pestaña Documentos (licencia, SOAT, revisión técnico-mecánica según el año del vehículo, correo de Mercado Pago y términos con la comisión), CheckboxField, pricing.js, y movió el botón Enviar registro a la pestaña 3. El registro ahora sube y guarda los documentos.
+- Archivos y commit: validators.js, pricing.js, DateField.js, CheckboxField.js, RegisterContext.js, PersonalDataScreen.js, VehicleScreen.js, DocumentsScreen.js, RegisterTabs.js, driverService.js — 387fa11
+- Verificación: Año 2027 válido y 2028 inválido, revisión técnico-mecánica según el año, vencimientos solo futuros, términos obligatorios y registro completo con documentos en Firestore y Cloudinary.
+- Aprendizaje: el uso para el calendario que no sirva fechas pasadas a las de hoy 
+
+### Entrada #9
+- Fecha: 2026-11-07
+- Integrante: Mateo Gonzalez
+- Herramienta: Claude
+- Objetivo: Pantalla de inicio con mapa, Disponible/No disponible, ubicación en tiempo real y Drawer
+- Prompt: Creare ya el inicio con el mapa un menu desplegable que va hacer el home donde este por el momento mi cuenta la foto el inicio con el mapa y la opcion de cerrar sesion
+- Resumen de la respuesta: Analizo el hook useDriverLocation (watchPositionAsync con función de limpieza, guarda la ubicación cada 5 s), HomeScreen (mapa, interruptor solo para cuentas aprobadas, AsyncStorage para la última disponibilidad), MainDrawer (menú con perfil y cerrar sesión) y conectó el Drawer dentro del Stack.
+- Qué se usó / modificó / descartó: Se eligió OSRM en vez de Google Directions para las rutas (gratis, sin tarjeta). (escribe si cambiaste algo más)
+- Archivos y commit: src/hooks/useDriverLocation.js, src/services/driverService.js, src/screens/HomeScreen.js, src/navigation/MainDrawer.js, src/navigation/AppNavigator.js, App.js — (hash)
+- Verificación: Interruptor bloqueado con cuenta pendiente, ubicación guardada en Firestore mientras está disponible, seguimiento detenido al salir de la pantalla o pasar a No disponible, estado recuperado al reabrir la app.
+- Aprendizaje: Utilizar librerias para ubicacion en tiempo real, y que sirva y no se desactive si se sale de la aplicacion o se cierra sin cerrar sesion y se cierra sesion se desactiva automaticamente
