@@ -11,15 +11,32 @@ const formatDate = (date) => {
   return `${day}/${month}/${year}`;
 };
 
-export default function DateField({ label, value, onChange, error, placeholder = 'Selecciona una fecha' }) {
+export default function DateField({
+  label,
+  value,
+  onChange,
+  error,
+  placeholder = 'Selecciona una fecha',
+  minimumDate,
+  maximumDate,
+  initialDate,
+}) {
   const [showPicker, setShowPicker] = useState(false);
 
+  const pickerValue = value || initialDate || new Date();
+
+  // El usuario eligió una fecha
   const handleValueChange = (event, selectedDate) => {
     if (Platform.OS === 'android') setShowPicker(false);
     if (selectedDate) onChange(selectedDate);
   };
 
   const handleDismiss = () => {
+    setShowPicker(false);
+  };
+
+  const handleDone = () => {
+    if (!value) onChange(pickerValue);
     setShowPicker(false);
   };
 
@@ -40,15 +57,16 @@ export default function DateField({ label, value, onChange, error, placeholder =
       {showPicker && (
         <View>
           <DateTimePicker
-            value={value || new Date(2000, 0, 1)}
+            value={pickerValue}
             mode="date"
             display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            maximumDate={new Date()}
+            minimumDate={minimumDate}
+            maximumDate={maximumDate}
             onValueChange={handleValueChange}
             onDismiss={handleDismiss}
           />
           {Platform.OS === 'ios' && (
-            <Pressable style={styles.doneButton} onPress={() => setShowPicker(false)}>
+            <Pressable style={styles.doneButton} onPress={handleDone}>
               <Text style={styles.doneText}>Listo</Text>
             </Pressable>
           )}

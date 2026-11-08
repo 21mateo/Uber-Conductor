@@ -3,7 +3,6 @@ export const isEmpty = (value) => {
 };
 
 export const normalizePlate = (plate) => {
-  // Mayúsculas y sin espacios antes de validar (PDF sección 2)
   return String(plate).toUpperCase().replace(/\s/g, '');
 };
 
@@ -12,7 +11,6 @@ export const getAge = (birthDate) => {
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
 
-  // Si todavía no ha llegado su cumpleaños este año, se resta 1
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
@@ -79,7 +77,6 @@ export const validateConfirmPassword = (password, confirm) => {
   return '';
 };
 
-// Para listas desplegables (género, idioma, categoría, color)
 export const validateSelect = (value, fieldName) => {
   if (isEmpty(value)) return `Selecciona ${fieldName}`;
   return '';
@@ -104,8 +101,9 @@ export const validateYear = (value) => {
   if (isEmpty(value)) return 'El año es obligatorio';
   if (!/^\d{4}$/.test(value)) return 'Debe tener 4 dígitos';
   const year = Number(value);
-  const currentYear = new Date().getFullYear();
-  if (year > currentYear) return `No puede ser mayor a ${currentYear}`;
+
+  const maxYear = new Date().getFullYear() + 1;
+  if (year > maxYear) return `No puede ser mayor a ${maxYear}`;
   if (year < 1950) return 'Año no válido';
   return '';
 };
@@ -120,6 +118,42 @@ export const validateCapacity = (value, category) => {
   return '';
 };
 
+// ---------- Pestaña 3: Documentos ----------
+
+// Años que un carro particular nuevo puede circular sin revisión técnico-mecánica (Ley 2294 de 2023)
+export const TECH_REVIEW_FREE_YEARS = 5;
+
+export const requiresTechReview = (vehicleYear) => {
+  const year = Number(vehicleYear);
+  if (!year) return false; 
+  return new Date().getFullYear() - year >= TECH_REVIEW_FREE_YEARS;
+};
+
+export const validateLicenseNumber = (value) => {
+  if (isEmpty(value)) return 'El número de licencia es obligatorio';
+  if (!/^\d+$/.test(value)) return 'Solo se permiten números';
+  if (value.length < 6 || value.length > 10) return 'Debe tener entre 6 y 10 dígitos';
+  return '';
+};
+
+export const validateExpiryDate = (date) => {
+  if (!date) return 'La fecha de vencimiento es obligatoria';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(date);
+  expiry.setHours(0, 0, 0, 0);
+
+  if (expiry <= today) return 'El documento está vencido o vence hoy';
+  return '';
+};
+
+export const validateTerms = (accepted) => {
+  if (!accepted) return 'Debes aceptar los términos para continuar';
+  return '';
+};
+
+// ---------- Validar una pestaña completa ----------
 
 export const validatePersonalData = (data) => {
   return {
@@ -148,6 +182,23 @@ export const validateVehicleData = (data) => {
   };
 };
 
+export const validateDocumentsData = (data, vehicleYear) => {
+  const needsTechReview = requiresTechReview(vehicleYear);
+  return {
+    licenseNumber: validateLicenseNumber(data.licenseNumber),
+    licensePhoto: validatePhoto(data.licensePhoto),
+    licenseExpiry: validateExpiryDate(data.licenseExpiry),
+    soatPhoto: validatePhoto(data.soatPhoto),
+    soatExpiry: validateExpiryDate(data.soatExpiry),
+    // La revisión técnico-mecánica solo se valida si aplica según el año del vehículo
+    techReviewPhoto: needsTechReview ? validatePhoto(data.techReviewPhoto) : '',
+    techReviewExpiry: needsTechReview ? validateExpiryDate(data.techReviewExpiry) : '',
+    mercadoPagoEmail: validateEmail(data.mercadoPagoEmail),
+    acceptedTerms: validateTerms(data.acceptedTerms),
+  };
+};
+
+// true si al menos un campo tiene error
 export const hasErrors = (errors) => {
   return Object.values(errors).some((message) => message !== '');
 };

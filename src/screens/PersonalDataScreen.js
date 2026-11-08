@@ -83,6 +83,8 @@ export default function PersonalDataScreen({ navigation }) {
           value={personalData.birthDate}
           onChange={(date) => updatePersonal('birthDate', date)}
           error={personalErrors.birthDate}
+          maximumDate={new Date()}
+          initialDate={new Date(2000, 0, 1)}
         />
 
         <SelectField

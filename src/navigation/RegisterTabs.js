@@ -18,7 +18,7 @@ function TabIcon({ name, isValid, color, size }) {
 }
 
 function RegisterTabsContent() {
-  const { isPersonalValid, isVehicleValid } = useRegister();
+  const { isPersonalValid, isVehicleValid, isDocumentsValid } = useRegister();
 
   return (
     <Tab.Navigator
@@ -64,7 +64,12 @@ function RegisterTabsContent() {
           title: 'Documentos',
           tabBarLabel: 'Documentos',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="document-text-outline" size={size} color={color} />
+            <TabIcon
+              name="document-text-outline"
+              isValid={isDocumentsValid}
+              color={color}
+              size={size}
+            />
           ),
         }}
       />

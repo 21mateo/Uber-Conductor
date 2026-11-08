@@ -11,9 +11,10 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
+import { PRICING } from '../config/pricing';
 import { registerUser, deleteCurrentUser } from './authService';
 import { uploadImage } from './imageService';
-import { normalizePlate } from '../utils/validators';
+import { normalizePlate, requiresTechReview } from '../utils/validators';
 
 const DRIVERS = 'drivers';
 
@@ -23,23 +24,27 @@ const createError = (code) => {
   return error;
 };
 
-// Revisa si ya existe un conductor con ese valor (ej: mismo documento)
 const existsDriverWith = async (field, value) => {
   const q = query(collection(db, DRIVERS), where(field, '==', value), limit(1));
   const snapshot = await getDocs(q);
   return !snapshot.empty;
 };
 
-// Registro completo del conductor
-export const registerDriver = async (personalData, vehicleData) => {
+export const registerDriver = async (personalData, vehicleData, documentsData) => {
   const email = personalData.email.trim().toLowerCase();
   const plate = normalizePlate(vehicleData.plate);
+  const needsTechReview = requiresTechReview(vehicleData.year);
 
-  // 1. Subir las dos fotos a Cloudinary al mismo tiempo
-  const [profilePhotoUrl, vehiclePhotoUrl] = await Promise.all([
-    uploadImage(personalData.photo, 'uber-conductor/perfiles'),
-    uploadImage(vehicleData.photo, 'uber-conductor/vehiculos'),
-  ]);
+  const [profilePhotoUrl, vehiclePhotoUrl, licensePhotoUrl, soatPhotoUrl, techReviewPhotoUrl] =
+    await Promise.all([
+      uploadImage(personalData.photo, 'uber-conductor/perfiles'),
+      uploadImage(vehicleData.photo, 'uber-conductor/vehiculos'),
+      uploadImage(documentsData.licensePhoto, 'uber-conductor/documentos'),
+      uploadImage(documentsData.soatPhoto, 'uber-conductor/documentos'),
+      needsTechReview
+        ? uploadImage(documentsData.techReviewPhoto, 'uber-conductor/documentos')
+        : Promise.resolve(null),
+    ]);
 
   // 2. Crear el usuario en Firebase Auth (si el correo existe, falla aquí)
   const user = await registerUser(email, personalData.password);
@@ -53,6 +58,7 @@ export const registerDriver = async (personalData, vehicleData) => {
       throw createError('driver/plate-taken');
     }
 
+    // 4. Guardar el conductor. El id del documento es el mismo uid de Auth
     await setDoc(doc(db, DRIVERS, user.uid), {
       personal: {
         fullName: personalData.fullName.trim(),
@@ -73,13 +79,34 @@ export const registerDriver = async (personalData, vehicleData) => {
         capacity: Number(vehicleData.capacity),
         photoUrl: vehiclePhotoUrl,
       },
-      status: 'pending', // pending | approved | rejected
+      documents: {
+        license: {
+          number: documentsData.licenseNumber,
+          photoUrl: licensePhotoUrl,
+          expiryDate: Timestamp.fromDate(documentsData.licenseExpiry),
+        },
+        soat: {
+          photoUrl: soatPhotoUrl,
+          expiryDate: Timestamp.fromDate(documentsData.soatExpiry),
+        },
+        techReview: needsTechReview
+          ? {
+              photoUrl: techReviewPhotoUrl,
+              expiryDate: Timestamp.fromDate(documentsData.techReviewExpiry),
+            }
+          : null,
+      },
+      payment: {
+        mercadoPagoEmail: documentsData.mercadoPagoEmail.trim().toLowerCase(),
+      },
+      commissionRate: PRICING.commissionRate, 
+      termsAcceptedAt: serverTimestamp(),
+      status: 'pending', 
       isAvailable: false,
       balance: 0,
       createdAt: serverTimestamp(),
     });
   } catch (error) {
-    // Rollback: si algo falla se borra el usuario para no dejar una cuenta a medias
     await deleteCurrentUser();
     throw error;
   }

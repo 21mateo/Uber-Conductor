@@ -66,7 +66,7 @@ export default function LoginScreen({ navigation }) {
 
         <InputField
           label="Correo electrónico"
-          placeholder="Ej: conductor@gmail.com"
+          placeholder="Correo electrónico"
           value={email}
           onChangeText={setEmail}
           error={errors.email}
@@ -76,6 +76,7 @@ export default function LoginScreen({ navigation }) {
 
         <InputField
           label="Contraseña"
+          placeholder="Escribe tu Contraseña"
           value={password}
           onChangeText={setPassword}
           error={errors.password}
