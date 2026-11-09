@@ -1,5 +1,8 @@
 // Simulador del pasajero: crea una solicitud de viaje en Firestore para un conductor disponible.
 // No es parte de la app; se corre desde la terminal para probar las solicitudes:
+//   node --env-file=.env scripts/simulateRequest.mjs
+//   node --env-file=.env scripts/simulateRequest.mjs correo@del-conductor.com
+
 import { initializeApp } from 'firebase/app';
 import {
   getFirestore,
@@ -8,6 +11,7 @@ import {
   where,
   getDocs,
   addDoc,
+  limit,
   serverTimestamp,
 } from 'firebase/firestore';
 
@@ -26,6 +30,7 @@ const randomBetween = (min, max) => min + Math.random() * (max - min);
 const randomItem = (list) => list[Math.floor(Math.random() * list.length)];
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
+// Punto aleatorio a cierta distancia (en km) de otro punto
 const randomPointNear = (lat, lng, minKm, maxKm) => {
   const distanceKm = randomBetween(minKm, maxKm);
   const angle = Math.random() * 2 * Math.PI;
@@ -49,6 +54,7 @@ const getRoute = async (from, to) => {
   };
 };
 
+// Dirección legible con Nominatim (OpenStreetMap). Máximo 1 petición por segundo.
 const getAddress = async ({ lat, lng }) => {
   try {
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18`;
@@ -76,13 +82,27 @@ const main = async () => {
   const snapshot = await getDocs(
     query(collection(db, 'drivers'), where('isAvailable', '==', true), where('status', '==', 'approved'))
   );
-  const drivers = snapshot.docs
+  const candidates = snapshot.docs
     .map((d) => ({ id: d.id, ...d.data() }))
     .filter((d) => d.location)
     .filter((d) => !emailFilter || d.personal.email === emailFilter);
 
+  // Se descartan los conductores que ya están en un viaje
+  const drivers = [];
+  for (const candidate of candidates) {
+    const activeTrips = await getDocs(
+      query(
+        collection(db, 'trips'),
+        where('driverId', '==', candidate.id),
+        where('isActive', '==', true),
+        limit(1)
+      )
+    );
+    if (activeTrips.empty) drivers.push(candidate);
+  }
+
   if (drivers.length === 0) {
-    console.log('❌ No hay conductores aprobados y disponibles con ubicación.');
+    console.log('❌ No hay conductores aprobados, disponibles y sin viaje en curso.');
     console.log('   Abre la app, ponte Disponible en Inicio y vuelve a intentar.');
     process.exit(1);
   }
@@ -92,7 +112,7 @@ const main = async () => {
   const originPoint = randomPointNear(driver.location.lat, driver.location.lng, 0.3, 1.2);
   const destinationPoint = randomPointNear(originPoint.lat, originPoint.lng, 2, 7);
 
-  console.log('Calculando ruta con OSRM...');
+  console.log('🛣️  Calculando ruta con OSRM...');
   const { distanceKm, durationMin } = await getRoute(originPoint, destinationPoint);
 
   console.log('📍 Buscando direcciones...');

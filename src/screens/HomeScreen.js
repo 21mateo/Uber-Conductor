@@ -7,7 +7,6 @@ import {
   ActivityIndicator,
   Linking,
   Vibration,
-  Alert,
   StyleSheet,
 } from 'react-native';
 import MapView from 'react-native-maps';
@@ -23,6 +22,7 @@ import { acceptTrip, rejectTrip } from '../services/tripService';
 import { getErrorMessage } from '../utils/firebaseErrors';
 import { colors, spacing, radius } from '../theme/colors';
 
+// Qué tanto zoom tiene el mapa (más pequeño = más cerca)
 const MAP_DELTA = { latitudeDelta: 0.01, longitudeDelta: 0.01 };
 
 const availabilityKey = (uid) => `lastAvailability_${uid}`;
@@ -66,11 +66,9 @@ export default function HomeScreen() {
     setResponding(true);
     try {
       await acceptTrip(request.id);
-      Alert.alert('Viaje aceptado', 'En el siguiente paso aquí se abre la navegación.');
     } catch (err) {
       console.log('Error aceptando viaje:', err);
       setError(getErrorMessage(err));
-    } finally {
       setResponding(false);
     }
   }, [request]);
@@ -113,6 +111,7 @@ export default function HomeScreen() {
     }
   }, [user, isApproved]);
 
+  // Vibra cuando llega una solicitud nueva
   useEffect(() => {
     if (request) Vibration.vibrate();
   }, [request?.id]);
@@ -160,7 +159,6 @@ export default function HomeScreen() {
         {error ? <Text style={styles.floatingError}>{error}</Text> : null}
 
         {request ? (
-          // key: cada solicitud nueva crea una tarjeta nueva (y el temporizador empieza en 15)
           <TripRequestCard
             key={request.id}
             request={request}
