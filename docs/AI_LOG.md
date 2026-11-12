@@ -102,3 +102,14 @@ pestaña 1 y pestaña 2 la estructura que tenga eso que me guarde en la bd que m
 - Archivos y commit: src/hooks/useDriverLocation.js, src/services/driverService.js, src/screens/HomeScreen.js, src/navigation/MainDrawer.js, src/navigation/AppNavigator.js, App.js — 8e7e88a
 - Verificación: Interruptor bloqueado con cuenta pendiente, ubicación guardada en Firestore mientras está disponible, seguimiento detenido al salir de la pantalla o pasar a No disponible, estado recuperado al reabrir la app.
 - Aprendizaje: Utilizar librerias para ubicacion en tiempo real, y que sirva y no se desactive si se sale de la aplicacion o se cierra sin cerrar sesion y se cierra sesion se desactiva automaticamente
+
+### Entrada 10
+- Fecha: 2026-11-07
+- Integrante: 10
+- Herramienta: Claude
+- Objetivo: Viaje en curso (recogida, pasajero a bordo, destino, finalizar), resumen del cobro y pago en efectivo
+- Prompt: Ya en esta parte del proyecto voy hacer el screen del viaje en curso la recogida del pasajero para que me salga el punto en el mapa de su ubicacion para ir a recogerlo y despues el de pasajero a bordo que salga ya la direccion de donde hay que llevarlo el destino hacia donde va y ya por ultimo el finalizar el vieja en donde ya es el pago y donde se llega al destino final, aqui se voy a ayudar mucho te aydua porque nunca he echo akgo asi los mapas y con OSRM entonces quiero que me guies mucho en esta fase y tambien si me quieres ayudar con el codigo o modificandolo te dejo
+- Resumen de la respuesta: Creó routeService (OSRM), ActiveTripContext y useActiveTrip (viaje activo con useContext), TripScreen (dos fases con Polyline), TripSummaryScreen (tarifa, comisión, ganancia y estado del pago), funciones de estados en tripService, pago en efectivo con writeBatch e increment, y navegación condicional por estado del viaje. Corrigió que el registro no se desmonte al crearse el usuario.
+- Archivos y commit: routeService.js, tripService.js, ActiveTripContext.js, useActiveTrip.js, TripScreen.js, TripSummaryScreen.js, AppNavigator.js, App.js, HomeScreen.js, simulateRequest.mjs — 3be02a2
+- Verificación: Flujo completo accepted → driver_arriving → in_progress → completed → paid, cancelación, viaje recuperado al reabrir la app y saldo descontado en efectivo.
+- Aprendizaje: Ver como se conecta todo con google map para la direccion de la persona cuando se va a recogerlo y despues llevarlo a su destino 

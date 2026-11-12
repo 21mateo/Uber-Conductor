@@ -9,4 +9,4 @@ export default function useActiveTrip() {
     throw new Error('useActiveTrip debe usarse dentro de ActiveTripProvider');
   }
   return context;
-}
+}   

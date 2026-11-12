@@ -1,83 +1,110 @@
 # UberClone — Versión Conductor 
 
-Aplicación móvil hecha con **React Native + Expo** 
-Proyecto final 
+Aplicación móvil hecha con **React Native + Expo** inspirada en la app de Uber para conductores.
+Proyecto final de la materia Desarrollo Móvil.
 
+## Funcionalidades
 
-## Entrega 1 — Registro del conductor
+1. **Registro del conductor** en 3 pestañas (Datos personales, Vehículo, Documentos) con validaciones debajo de cada campo. El botón *Enviar registro* solo se habilita cuando las tres pestañas son válidas. La cuenta queda en estado **Pendiente de aprobación**.
+2. **Inicio de sesión** con sesión persistente y cierre de sesión.
+3. **Disponible / No disponible** (solo con la cuenta aprobada) y ubicación en tiempo real cada 5 segundos.
+4. **Solicitudes de viaje** en tiempo real con temporizador de 15 segundos para aceptar o rechazar.
+5. **Viaje en curso:** ruta al punto de recogida, *Pasajero a bordo*, ruta al destino y finalizar.
+6. **Cobro** con **Mercado Pago Checkout Pro** (modo prueba) o en **efectivo**.
+7. **Cálculo de tarifa, comisión (20 %) y ganancia neta** con una sola función (`calculateFare`).
+8. **Ganancias** de hoy, la semana y el mes, y **saldo** del conductor.
+9. **Historial de carreras** con filtros (Hoy, Semana, Mes, Rango, método de pago), paginación de 20 y detalle con la ruta en el mapa.
+10. **Perfil y configuración:** datos editables, vehículo y documentos.
+11. **Navegación combinada:** Stack (flujo del viaje), Tabs (registro) y Drawer (inicio, ganancias, historial y perfil).
 
-- Registro dividido en pestañas con navegación Tab: **Datos personales** y **Vehículo** (la pestaña **Documentos** se implementa en la entrega 2).
-- Validaciones de todos los campos con mensajes de error debajo de cada campo.
-- El botón **Enviar registro** solo se habilita cuando las pestañas están completas y válidas.
-- Fotos de perfil y del vehículo desde cámara o galería, subidas a **Cloudinary**.
-- Datos guardados en **Firestore**; la cuenta queda en estado **Pendiente de aprobación**.
-- Validación de correo, documento y placa repetidos.
-- Rollback: si el registro falla a medias, se borra el usuario creado.
-- Inicio de sesión, sesión persistente y cierre de sesión con **Firebase Auth**.
-- Pantalla de estado de la cuenta que se actualiza en tiempo real (`onSnapshot`).
 
 ## Tecnologías
 
 - React Native + Expo (Expo Go)
-- React Navigation (Native Stack + Bottom Tabs)
-- Firebase Authentication y Cloud Firestore
-- Cloudinary (almacenamiento de imágenes)
-- AsyncStorage (persistencia de la sesión)
-- expo-image-picker, expo-file-system, @react-native-community/datetimepicker, @react-native-picker/picker
+- React Navigation: Native Stack, Bottom Tabs y Drawer
+- Firebase Authentication y Cloud Firestore (tiempo real con `onSnapshot`)
+- Cloudinary (fotos de perfil, vehículo y documentos)
+- react-native-maps y expo-location
+- OSRM (rutas, distancia y duración) y Nominatim (direcciones) — gratuitos
+- Mercado Pago Checkout Pro + backend en Node.js / Express
+- AsyncStorage (sesión y última disponibilidad)
 
-## Estructura del proyecto
+## Estructura
 
-src/
-├── components/ Componentes reutilizables (InputField, SelectField, DateField, ImageField, PrimaryButton)
-├── config/ Conexión a Firebase y Cloudinary
-├── constants/ Opciones de las listas desplegables
-├── context/ AuthContext (sesión) y RegisterContext (datos del registro)
-├── hooks/ useAuth, useRegister, useImagePicker
-├── navigation/ AppNavigator (Stack) y RegisterTabs (Tabs)
-├── screens/ Pantallas de la app
-├── services/ authService, driverService, imageService
-├── theme/ Colores, espaciados y tipografía
-└── utils/ Validaciones y traducción de errores
+```
+uber-conductor/
+├── App.js
+├── backend/            Servidor de pagos (Node + Express + Mercado Pago + Firebase Admin)
+├── scripts/            Simulador del pasajero (crea solicitudes de viaje)
+├── docs/AI_LOG.md      Bitácora de uso de IA
+└── src/
+    ├── components/     Componentes reutilizables
+    ├── config/         Firebase, Cloudinary, backend y tarifas (pricing.js)
+    ├── constants/      Opciones de listas
+    ├── context/        AuthContext, RegisterContext y ActiveTripContext
+    ├── hooks/          useDriverLocation, useTripRequests, useEarnings y otros
+    ├── navigation/     AppNavigator, RegisterTabs y MainDrawer
+    ├── screens/        Pantallas
+    ├── services/       Auth, Firestore, imágenes, rutas, viajes y pagos
+    ├── theme/          Colores y estilos
+    └── utils/          Validaciones, tarifa, fechas y formatos
+```
 
 ## Instalación
 
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/21mateo/Uber-Conductor.git
-   cd uber-conductor
-   ```
-2. Instalar dependencias:
-   ```bash
-   npm install
-   ```
-3. Crear el archivo `.env` en la raíz copiando `.env.example` y llenar los valores (ver abajo).
-4. Iniciar la app:
-   ```bash
-   npx expo start -c
-   ```
-5. Escanear el código QR con la app **Expo Go**.
+### 1. App
 
-## Variables de entorno
+```bash
+git clone <URL del repositorio>
+cd uber-conductor
+npm install
+```
 
-El archivo `.env` **no se sube al repositorio**. Usar `.env.example` como plantilla:
+Crear el archivo `.env` en la raíz copiando `.env.example`:
 
 | Variable | Dónde se obtiene |
 |---|---|
-| `EXPO_PUBLIC_FIREBASE_API_KEY` | Firebase → Configuración del proyecto → Tus apps (app web) |
-| `EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN` | Igual que la anterior |
-| `EXPO_PUBLIC_FIREBASE_PROJECT_ID` | Igual que la anterior |
-| `EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET` | Igual que la anterior |
-| `EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Igual que la anterior |
-| `EXPO_PUBLIC_FIREBASE_APP_ID` | Igual que la anterior |
-| `EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary → Dashboard → Cloud name |
+| `EXPO_PUBLIC_FIREBASE_*` (6 variables) | Firebase → Configuración del proyecto → Tus apps (app web) |
+| `EXPO_PUBLIC_CLOUDINARY_CLOUD_NAME` | Cloudinary → Dashboard |
 | `EXPO_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | Cloudinary → Settings → Upload presets (modo **Unsigned**) |
+| `EXPO_PUBLIC_BACKEND_URL` | `http://<IP del PC>:3000` (el celular y el PC deben estar en la misma red) |
 
-### Configuración de Firebase
-- **Authentication:** habilitar el proveedor *Correo electrónico/contraseña*.
-- **Firestore:** crear la base de datos y publicar las reglas de seguridad del proyecto.
+### 2. Backend de pagos
 
-### Aprobar un conductor (simulación)
-En Firestore, colección `drivers`, cambiar el campo `status` de `pending` a `approved`. La app lo refleja en tiempo real.
+```bash
+cd backend
+npm install
+```
+
+- Crear `backend/.env` copiando `backend/.env.example` y poner el **Access Token de prueba** de Mercado Pago.
+- Descargar la llave de Firebase (Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada), guardarla como `backend/serviceAccountKey.json`.
+- **El `.env` y la llave no se suben al repositorio** (están en `.gitignore`).
+
+### 3. Firebase
+
+- **Authentication:** habilitar *Correo electrónico/contraseña*.
+- **Firestore:** crear la base de datos. La primera vez que se abren *Ganancias* e *Historial*, Firestore pide crear dos índices compuestos de la colección `trips`; el link aparece en la terminal de Expo.
+
+## Cómo correr el proyecto (3 terminales)
+
+```bash
+# Terminal 1 — la app
+npx expo start -c
+
+# Terminal 2 — el backend de pagos
+cd backend
+node server.js
+
+# Terminal 3 — simular que un pasajero pide un viaje
+node --env-file=.env scripts/simulateRequest.mjs
+```
+
+### Aprobar un conductor
+En Firestore, colección `drivers`, cambiar `status` de `pending` a `approved`. La app lo refleja en tiempo real.
+
+### Pago de prueba con Mercado Pago
+Tarjeta **5254 1336 7440 3564**, CVV **123**, vencimiento **11/30**, documento **123456789**.
+Nombre del titular: **APRO** (aprobado) u **OTHE** (rechazado).
 
 ## Uso de IA
 
