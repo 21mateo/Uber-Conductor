@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as WebBrowser from 'expo-web-browser';
 import useActiveTrip from '../hooks/useActiveTrip';
 import PrimaryButton from '../components/PrimaryButton';
 import { confirmCashPayment, switchToCash, closeTrip } from '../services/tripService';
+import { createMercadoPagoPayment, verifyMercadoPagoPayment } from '../services/paymentService';
 import { formatMoney, formatKm, formatMinutes } from '../utils/format';
 import { getErrorMessage } from '../utils/firebaseErrors';
 import { PAYMENT_METHODS, getOptionLabel } from '../constants/options';
@@ -27,6 +29,7 @@ export default function TripSummaryScreen() {
   const isCash = trip.paymentMethod === 'cash';
   const paymentStatus = PAYMENT_STATUS[trip.paymentStatus] || PAYMENT_STATUS.pending;
 
+  // Ejecuta una acción mostrando la carga y el error si falla
   const run = async (action) => {
     setError('');
     setBusy(true);
@@ -39,6 +42,19 @@ export default function TripSummaryScreen() {
       setBusy(false);
     }
   };
+
+  // Cobro con Mercado Pago (PDF sección 4)
+  const handlePayWithMercadoPago = () =>
+    run(async () => {
+      // 1. El backend crea la preferencia y devuelve el link del checkout
+      const { checkoutUrl } = await createMercadoPagoPayment(trip);
+      // 2. Se abre el checkout; termina cuando el usuario cierra el navegador
+      await WebBrowser.openBrowserAsync(checkoutUrl);
+      // 3. Al volver se verifica el pago, por si la URL de retorno no alcanzó a cargar
+      await verifyMercadoPagoPayment(trip.id);
+    });
+
+  const handleVerify = () => run(() => verifyMercadoPagoPayment(trip.id));
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -78,11 +94,16 @@ export default function TripSummaryScreen() {
       ) : null}
 
       {!isCash && !isPaid ? (
-        <Text style={styles.note}>Esperando a que el pasajero pague con Mercado Pago...</Text>
+        <Text style={styles.note}>
+          {trip.paymentStatus === 'rejected'
+            ? 'El pago fue rechazado. Intenta de nuevo o cobra en efectivo.'
+            : 'El pasajero paga con Mercado Pago desde el checkout.'}
+        </Text>
       ) : null}
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
+      {/* Botones según el estado del pago */}
       {isPaid ? (
         <PrimaryButton title="Listo" onPress={() => run(() => closeTrip(trip.id))} loading={busy} />
       ) : isCash ? (
@@ -92,9 +113,19 @@ export default function TripSummaryScreen() {
           loading={busy}
         />
       ) : (
-        <Pressable onPress={() => run(() => switchToCash(trip.id))} disabled={busy}>
-          <Text style={styles.link}>El pasajero pagará en efectivo</Text>
-        </Pressable>
+        <>
+          <PrimaryButton
+            title="Cobrar con Mercado Pago"
+            onPress={handlePayWithMercadoPago}
+            loading={busy}
+          />
+          <Pressable onPress={handleVerify} disabled={busy}>
+            <Text style={styles.link}>Ya pagó, verificar pago</Text>
+          </Pressable>
+          <Pressable onPress={() => run(() => switchToCash(trip.id))} disabled={busy}>
+            <Text style={styles.link}>El pasajero pagará en efectivo</Text>
+          </Pressable>
+        </>
       )}
     </ScrollView>
   );
