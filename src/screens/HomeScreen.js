@@ -17,6 +17,7 @@ import useAuth from '../hooks/useAuth';
 import useDriverLocation from '../hooks/useDriverLocation';
 import useTripRequests from '../hooks/useTripRequests';
 import TripRequestCard from '../components/TripRequestCard';
+import CarMarker from '../components/CarMarker';
 import { updateDriverAvailability } from '../services/driverService';
 import { acceptTrip, rejectTrip } from '../services/tripService';
 import { getErrorMessage } from '../utils/firebaseErrors';
@@ -25,24 +26,29 @@ import { colors, spacing, radius } from '../theme/colors';
 // Qué tanto zoom tiene el mapa (más pequeño = más cerca)
 const MAP_DELTA = { latitudeDelta: 0.01, longitudeDelta: 0.01 };
 
+// Llave de AsyncStorage para recordar la última disponibilidad de cada conductor
 const availabilityKey = (uid) => `lastAvailability_${uid}`;
 
 export default function HomeScreen() {
   const { user, driver } = useAuth();
-  const isFocused = useIsFocused(); 
+  const isFocused = useIsFocused(); // true si esta pantalla es la que se está viendo
   const mapRef = useRef(null);
 
   const [saving, setSaving] = useState(false);
   const [responding, setResponding] = useState(false);
   const [error, setError] = useState('');
 
+  // Solo puede ponerse Disponible si la cuenta está aprobada (PDF sección 2)
   const isApproved = driver?.status === 'approved';
   const isAvailable = isApproved && driver?.isAvailable === true;
 
+  // Se sigue la ubicación solo si está Disponible y en esta pantalla
   const { location, permissionDenied } = useDriverLocation(user?.uid, isAvailable && isFocused);
 
+  // Solicitudes en tiempo real (solo mientras está Disponible)
   const { request } = useTripRequests(user?.uid, isAvailable);
 
+  // Cambia la disponibilidad en Firestore y la recuerda en AsyncStorage
   const changeAvailability = useCallback(
     async (value) => {
       setError('');
@@ -60,12 +66,15 @@ export default function HomeScreen() {
     [user]
   );
 
+  // Aceptar la solicitud (useCallback, como pide el PDF)
   const handleAccept = useCallback(async () => {
     if (!request) return;
     setError('');
     setResponding(true);
     try {
       await acceptTrip(request.id);
+      // Al aceptar, el ActiveTripContext detecta el viaje activo
+      // y la navegación cambia sola a la pantalla del viaje
     } catch (err) {
       console.log('Error aceptando viaje:', err);
       setError(getErrorMessage(err));
@@ -94,9 +103,11 @@ export default function HomeScreen() {
   const handleRejectByDriver = useCallback(() => handleReject('driver'), [handleReject]);
   const handleTimeout = useCallback(() => handleReject('timeout'), [handleReject]);
 
+  // Al abrir: recupera el último estado guardado en AsyncStorage
   useEffect(() => {
     if (!user || !driver) return;
 
+    // Si la cuenta dejó de estar aprobada, se fuerza a No disponible
     if (!isApproved && driver.isAvailable) {
       changeAvailability(false);
       return;
@@ -109,6 +120,7 @@ export default function HomeScreen() {
         }
       });
     }
+    // Solo se revisa al entrar o cuando cambia la aprobación
   }, [user, isApproved]);
 
   // Vibra cuando llega una solicitud nueva
@@ -116,12 +128,14 @@ export default function HomeScreen() {
     if (request) Vibration.vibrate();
   }, [request?.id]);
 
+  // Mueve el mapa cuando cambia la ubicación
   useEffect(() => {
     if (location && mapRef.current) {
       mapRef.current.animateToRegion({ ...location, ...MAP_DELTA }, 500);
     }
   }, [location]);
 
+  // Sin permiso de ubicación
   if (permissionDenied) {
     return (
       <View style={styles.center}>
@@ -137,6 +151,7 @@ export default function HomeScreen() {
     );
   }
 
+  // Mientras se obtiene la primera ubicación
   if (!location) {
     return (
       <View style={styles.center}>
@@ -148,17 +163,16 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.screen}>
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={{ ...location, ...MAP_DELTA }}
-        showsUserLocation
-      />
+      <MapView ref={mapRef} style={styles.map} initialRegion={{ ...location, ...MAP_DELTA }}>
+        {/* El conductor se muestra como un carro */}
+        <CarMarker coordinate={location} />
+      </MapView>
 
       <View style={styles.bottom}>
         {error ? <Text style={styles.floatingError}>{error}</Text> : null}
 
         {request ? (
+          // key: cada solicitud nueva crea una tarjeta nueva (y el temporizador empieza en 15)
           <TripRequestCard
             key={request.id}
             request={request}

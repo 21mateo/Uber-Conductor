@@ -14,6 +14,7 @@ import useAuth from '../hooks/useAuth';
 import useActiveTrip from '../hooks/useActiveTrip';
 import useDriverLocation from '../hooks/useDriverLocation';
 import PrimaryButton from '../components/PrimaryButton';
+import CarMarker from '../components/CarMarker';
 import { getRoute } from '../services/routeService';
 import { startPickup, startTrip, completeTrip, cancelTrip } from '../services/tripService';
 import { calculateFare } from '../utils/calculateFare';
@@ -66,6 +67,7 @@ export default function TripScreen() {
       })
       .catch((err) => console.log('No se pudo calcular la ruta a la recogida:', err));
 
+    // Limpieza: si la pantalla se cierra antes de que responda OSRM
     return () => {
       cancelled = true;
     };
@@ -91,6 +93,7 @@ export default function TripScreen() {
         const route = await getRoute(trip.origin, trip.destination);
         coordinates = route.coordinates;
       } catch (routeError) {
+        // Si OSRM falla, el viaje sigue y se dibuja una línea recta
         console.log('No se pudo calcular la ruta al destino:', routeError);
       }
       await startTrip(trip.id, coordinates);
@@ -102,6 +105,7 @@ export default function TripScreen() {
     }
   }, [trip]);
 
+  // Finalizar: tarifa final con la MISMA función de la estimación (PDF sección 4)
   const handleFinish = useCallback(async () => {
     setError('');
     setBusy(true);
@@ -113,6 +117,7 @@ export default function TripScreen() {
         tip: 0,
       });
       await completeTrip(trip.id, fareResult);
+      // El ActiveTripContext ve el cambio a "completed" y abre el resumen solo
     } catch (err) {
       console.log('Error finalizando el viaje:', err);
       setError(getErrorMessage(err));
@@ -149,7 +154,6 @@ export default function TripScreen() {
       <MapView
         ref={mapRef}
         style={styles.map}
-        showsUserLocation
         initialRegion={{
           ...toMapPoint(target),
           latitudeDelta: 0.03,
@@ -158,6 +162,8 @@ export default function TripScreen() {
       >
         <Marker coordinate={toMapPoint(trip.origin)} title="Recogida" pinColor="green" />
         <Marker coordinate={toMapPoint(trip.destination)} title="Destino" />
+        {/* El conductor se muestra como un carro y se mueve con el GPS */}
+        <CarMarker coordinate={location} />
         {routeCoordinates?.length ? (
           <Polyline coordinates={routeCoordinates} strokeWidth={5} strokeColor={colors.primary} />
         ) : null}
