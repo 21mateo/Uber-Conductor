@@ -6,12 +6,14 @@ import useActiveTrip from '../hooks/useActiveTrip';
 import LoginScreen from '../screens/LoginScreen';
 import TripScreen from '../screens/TripScreen';
 import TripSummaryScreen from '../screens/TripSummaryScreen';
+import TripDetailScreen from '../screens/TripDetailScreen';
 import RegisterTabs from './RegisterTabs';
 import MainDrawer from './MainDrawer';
 import { colors } from '../theme/colors';
 
 const Stack = createNativeStackNavigator();
 
+// Tema de la navegación con nuestros colores (igual que en clase)
 const navigationTheme = {
   ...DefaultTheme,
   colors: {
@@ -24,6 +26,7 @@ const navigationTheme = {
   },
 };
 
+// Pantalla del flujo del viaje según el estado (PDF: el status controla qué pantalla se muestra)
 const renderTripScreen = (trip) => {
   if (trip.status === 'completed' || trip.status === 'paid') {
     return (
@@ -51,6 +54,8 @@ export default function AppNavigator() {
   const isLoggedIn = user && driver;
 
   // Mientras Firebase revisa la sesión y si hay un viaje activo.
+  // Ojo: se usa isLoggedIn y no solo user, para no desmontar el registro
+  // en el momento en que se crea el usuario en Auth.
   if (initializing || (isLoggedIn && loadingTrip)) {
     return (
       <View style={styles.loading}>
@@ -64,9 +69,19 @@ export default function AppNavigator() {
       <Stack.Navigator>
         {isLoggedIn ? (
           activeTrip ? (
+            // Stack del viaje: mientras hay un viaje activo no se puede salir de él
             renderTripScreen(activeTrip)
           ) : (
-            <Stack.Screen name="Main" component={MainDrawer} options={{ headerShown: false }} />
+            <>
+              {/* Drawer: Inicio, Ganancias, Historial y Perfil */}
+              <Stack.Screen name="Main" component={MainDrawer} options={{ headerShown: false }} />
+              {/* Detalle de un viaje del historial */}
+              <Stack.Screen
+                name="TripDetail"
+                component={TripDetailScreen}
+                options={{ title: 'Detalle del viaje' }}
+              />
+            </>
           )
         ) : (
           <>
@@ -74,7 +89,7 @@ export default function AppNavigator() {
             <Stack.Screen
               name="Register"
               component={RegisterTabs}
-              options={{ headerShown: false }} 
+              options={{ headerShown: false }} // los tabs ya tienen su propio encabezado
             />
           </>
         )}

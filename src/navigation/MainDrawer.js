@@ -8,18 +8,22 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import useAuth from '../hooks/useAuth';
 import HomeScreen from '../screens/HomeScreen';
-import PendingScreen from '../screens/PendingScreen';
+import EarningsScreen from '../screens/EarningsScreen';
+import HistoryScreen from '../screens/HistoryScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 import { logoutUser } from '../services/authService';
 import { updateDriverAvailability } from '../services/driverService';
 import { colors, spacing } from '../theme/colors';
 
 const Drawer = createDrawerNavigator();
 
+// Contenido del menú lateral: foto, nombre, opciones y cerrar sesión
 function DrawerContent(props) {
   const { driver } = useAuth();
 
   const handleLogout = async () => {
     try {
+      // Antes de salir se pone No disponible, para no quedar "fantasma" en el mapa
       if (driver?.isAvailable) {
         await updateDriverAvailability(driver.id, false);
       }
@@ -51,6 +55,10 @@ function DrawerContent(props) {
   );
 }
 
+// Ícono de cada opción del menú
+const drawerIcon = (name) => ({ color, size }) => <Ionicons name={name} size={size} color={color} />;
+
+// Drawer para inicio, ganancias, historial y perfil (PDF sección 1, punto 8)
 export default function MainDrawer() {
   return (
     <Drawer.Navigator
@@ -63,20 +71,22 @@ export default function MainDrawer() {
       <Drawer.Screen
         name="Home"
         component={HomeScreen}
-        options={{
-          title: 'Inicio',
-          drawerIcon: ({ color, size }) => <Ionicons name="map-outline" size={size} color={color} />,
-        }}
+        options={{ title: 'Inicio', drawerIcon: drawerIcon('map-outline') }}
       />
       <Drawer.Screen
-        name="Account"
-        component={PendingScreen}
-        options={{
-          title: 'Mi cuenta',
-          drawerIcon: ({ color, size }) => (
-            <Ionicons name="person-circle-outline" size={size} color={color} />
-          ),
-        }}
+        name="Earnings"
+        component={EarningsScreen}
+        options={{ title: 'Ganancias', drawerIcon: drawerIcon('wallet-outline') }}
+      />
+      <Drawer.Screen
+        name="History"
+        component={HistoryScreen}
+        options={{ title: 'Historial de carreras', drawerIcon: drawerIcon('time-outline') }}
+      />
+      <Drawer.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: 'Perfil y configuración', drawerIcon: drawerIcon('person-circle-outline') }}
       />
     </Drawer.Navigator>
   );
